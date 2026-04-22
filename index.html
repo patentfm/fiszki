@@ -9,8 +9,7 @@
   <body>
     <main class="app">
       <header class="header">
-        <h1>Fiszki: Zwierzatka (PL -> EN)</h1>
-        <p>Kliknij fiszke, aby ja obrocic.</p>
+        <h1>Minecraft Zgadywanki Po Angielsku</h1>
       </header>
 
       <section class="card-section">
@@ -19,6 +18,16 @@
 
           <div class="flashcard" id="flashcard" aria-label="Fiszka">
             <article class="flashcard-face flashcard-front">
+              <label for="answerInput" class="answer-label">Wpisz po angielsku:</label>
+              <input
+                id="answerInput"
+                class="answer-input"
+                type="text"
+                autocomplete="off"
+                autocapitalize="off"
+                spellcheck="false"
+              />
+              <p id="letterFeedback" class="letter-feedback" aria-live="polite"></p>
               <img id="frontImage" src="" alt="" class="card-image" />
               <h2 id="polishWord"></h2>
             </article>

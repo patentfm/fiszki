@@ -57,6 +57,8 @@ const backImageEl = document.getElementById("backImage");
 const progressEl = document.getElementById("progress");
 const prevBtnEl = document.getElementById("prevBtn");
 const nextBtnEl = document.getElementById("nextBtn");
+const answerInputEl = document.getElementById("answerInput");
+const answerColoredEl = document.getElementById("answerColored");
 
 let currentIndex = 0;
 
@@ -73,6 +75,52 @@ function renderCard() {
   backImageEl.alt = `Zabawny obrazek: ${card.polish} (${card.english})`;
 
   progressEl.textContent = `${currentIndex + 1} / ${flashcards.length}`;
+  answerInputEl.value = "";
+  answerColoredEl.innerHTML = '<span class="placeholder">Wpisz odpowiedz...</span>';
+  answerInputEl.focus();
+}
+
+function escapeHtml(text) {
+  return text
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
+}
+
+function renderColoredInput(inputValue) {
+  const expectedWord = flashcards[currentIndex].english.toLowerCase();
+  const typedWord = inputValue.toLowerCase();
+  let coloredHtml = "";
+
+  if (typedWord.length === 0) {
+    answerColoredEl.innerHTML = '<span class="placeholder">Wpisz odpowiedz...</span>';
+    return;
+  }
+
+  for (let i = 0; i < typedWord.length; i += 1) {
+    const typedChar = typedWord[i];
+    const expectedChar = expectedWord[i];
+    const cssClass = typedChar === expectedChar ? "correct" : "wrong";
+    coloredHtml += `<span class="${cssClass}">${escapeHtml(typedChar)}</span>`;
+  }
+
+  answerColoredEl.innerHTML = coloredHtml;
+}
+
+function isAnswerCorrect() {
+  const expectedWord = flashcards[currentIndex].english.toLowerCase();
+  const typedWord = answerInputEl.value.trim().toLowerCase();
+  return typedWord === expectedWord;
+}
+
+function tryFlipCard() {
+  if (isAnswerCorrect()) {
+    flashcardEl.classList.add("is-flipped");
+  } else {
+    flashcardEl.classList.remove("is-flipped");
+  }
 }
 
 function showNextCard() {
@@ -88,11 +136,29 @@ function showPreviousCard() {
 }
 
 flashcardEl.addEventListener("click", () => {
-  flashcardEl.classList.toggle("is-flipped");
+  if (flashcardEl.classList.contains("is-flipped")) {
+    flashcardEl.classList.remove("is-flipped");
+    answerInputEl.focus();
+    return;
+  }
+
+  tryFlipCard();
 });
 
 nextBtnEl.addEventListener("click", showNextCard);
 prevBtnEl.addEventListener("click", showPreviousCard);
+answerInputEl.addEventListener("input", (event) => {
+  renderColoredInput(event.target.value);
+  flashcardEl.classList.remove("is-flipped");
+  tryFlipCard();
+});
+
+answerInputEl.addEventListener("keydown", (event) => {
+  if (event.key === "Enter") {
+    event.preventDefault();
+    tryFlipCard();
+  }
+});
 
 document.addEventListener("keydown", (event) => {
   if (event.key === "ArrowRight") {
@@ -101,7 +167,7 @@ document.addEventListener("keydown", (event) => {
     showPreviousCard();
   } else if (event.key === " ") {
     event.preventDefault();
-    flashcardEl.classList.toggle("is-flipped");
+    tryFlipCard();
   }
 });
 

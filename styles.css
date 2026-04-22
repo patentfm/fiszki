@@ -68,6 +68,70 @@ body {
   gap: 12px;
 }
 
+.answer-label {
+  width: 100%;
+  font-weight: bold;
+  text-align: left;
+}
+
+.answer-input-wrap {
+  position: relative;
+  width: 100%;
+}
+
+.answer-colored {
+  position: absolute;
+  inset: 0;
+  border: 2px solid #9bb9f3;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 1.1rem;
+  letter-spacing: normal;
+  white-space: pre;
+  overflow: hidden;
+  pointer-events: none;
+  background: #fff;
+}
+
+.answer-input {
+  position: relative;
+  width: 100%;
+  border: 2px solid #9bb9f3;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 1.1rem;
+  background: transparent;
+  color: transparent;
+  caret-color: #1a1a1a;
+  z-index: 1;
+}
+
+.answer-input-wrap:focus-within .answer-colored,
+.answer-input:focus {
+  border-color: #2f6ef8;
+  box-shadow: 0 0 0 3px rgba(47, 110, 248, 0.2);
+}
+
+.answer-colored .correct {
+  color: #178544;
+}
+
+.answer-colored .wrong {
+  color: #d62828;
+}
+
+.answer-colored .placeholder {
+  color: #7b8494;
+}
+
+.answer-input-wrap .answer-colored {
+  font-family: Arial, sans-serif;
+}
+
+.answer-input:focus {
+  outline: none;
+}
+
 .flashcard-back {
   transform: rotateY(180deg);
   border-color: #ffe1ba;
