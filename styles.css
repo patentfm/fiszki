@@ -403,6 +403,7 @@ button.album-card:hover {
   background: #ffffff;
   display: block;
   margin: 0 auto;
+  margin-bottom:10px;
 }
 
 .album-card .rarity-badge {
