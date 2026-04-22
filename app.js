@@ -63,6 +63,17 @@ const answerColoredEl =
 const answerInputWrapEl = document.querySelector(".answer-input-wrap");
 
 let currentIndex = 0;
+const MIN_BACK_VARIANT = 1;
+const MAX_BACK_VARIANT = 4;
+const backImageVariants = flashcards.map(
+  () =>
+    Math.floor(Math.random() * (MAX_BACK_VARIANT - MIN_BACK_VARIANT + 1)) +
+    MIN_BACK_VARIANT,
+);
+
+function buildBackImagePath(basePath, variantNumber) {
+  return basePath.replace(/-back(\.[^.]+)$/i, `-back-${variantNumber}$1`);
+}
 
 function renderCard() {
   const card = flashcards[currentIndex];
@@ -71,7 +82,7 @@ function renderCard() {
   englishWordEl.textContent = card.english;
 
   frontImageEl.src = card.frontImage;
-  backImageEl.src = card.backImage;
+  backImageEl.src = buildBackImagePath(card.backImage, backImageVariants[currentIndex]);
 
   frontImageEl.alt = `Zwierzatko: ${card.polish}`;
   backImageEl.alt = `Zabawny obrazek: ${card.polish} (${card.english})`;
