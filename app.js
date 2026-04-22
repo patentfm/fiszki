@@ -467,14 +467,14 @@ function renderAlbum() {
               <div class="album-card-image-wrap">
                 <img src="${backImageSrc}" alt="Odblokowana karta: ${card.polish} (${card.english})" class="album-card-image" />
               </div>
-              <p class="album-card-title">${card.polish} (${rarityText})</p>
+              <p class="album-card-title">${card.polish}<br/> (${rarityText})</p>
             </button>
           `);
         } else {
           variantMarkup.push(`
             <div class="album-card album-card-locked" aria-hidden="true">
               <div class="album-card-image-wrap album-card-locked-image">🔒</div>
-              <p class="album-card-title">Nieodblokowana (${rarityText})</p>
+              <p class="album-card-title">Nieodblokowana <br/> (${rarityText})</p>
             </div>
           `);
         }
