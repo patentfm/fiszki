@@ -467,14 +467,14 @@ function renderAlbum() {
               <div class="album-card-image-wrap">
                 <img src="${backImageSrc}" alt="Odblokowana karta: ${card.polish} (${card.english})" class="album-card-image" />
               </div>
-              <p class="album-card-title">${card.polish}<br/> (${rarityText})</p>
+              <p class="album-card-title">${rarityText}</p>
             </button>
           `);
         } else {
           variantMarkup.push(`
             <div class="album-card album-card-locked" aria-hidden="true">
               <div class="album-card-image-wrap album-card-locked-image">🔒</div>
-              <p class="album-card-title">Nieodblokowana <br/> (${rarityText})</p>
+              <p class="album-card-title">${rarityText}</p>
             </div>
           `);
         }
@@ -537,7 +537,7 @@ function showAlbumPreview(cardIndex, variantNumber) {
   albumPreviewImageEl.src = buildBackImagePath(card.backImage, variantNumber);
   albumPreviewImageEl.alt = `Podglad karty: ${card.polish} (${card.english})`;
   const rarityText = getRarityText(variantNumber);
-  albumPreviewTitleEl.textContent = `${card.polish} - ${card.english} (${rarityText})`;
+  albumPreviewTitleEl.textContent = `${card.polish} - ${card.english}\n(${rarityText})`;
   if (albumPreviewRarityBadgeEl) {
     albumPreviewRarityBadgeEl.textContent = rarityText;
   }

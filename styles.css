@@ -175,6 +175,11 @@ body {
   width: 100%;
 }
 
+.album-preview-image-wrap {
+  max-width: 420px;
+  margin: 0 auto;
+}
+
 .card-image-wrap {
   display: flex;
   flex: 1;
@@ -396,6 +401,8 @@ button.album-card:hover {
   object-fit: contain;
   border-radius: 8px;
   background: #ffffff;
+  display: block;
+  margin: 0 auto;
 }
 
 .album-card .rarity-badge {
@@ -409,6 +416,14 @@ button.album-card:hover {
   text-align: center;
   font-weight: bold;
   font-size: 0.9rem;
+}
+
+.album-card-title {
+  white-space: nowrap;
+}
+
+.album-preview-title {
+  white-space: pre-line;
 }
 
 .is-hidden {
