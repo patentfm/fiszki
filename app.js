@@ -75,18 +75,24 @@ const albumPreviewImageEl = document.getElementById("albumPreviewImage");
 const albumPreviewTitleEl = document.getElementById("albumPreviewTitle");
 const unlockProgressTextEl = document.getElementById("unlockProgressText");
 const unlockProgressFillEl = document.getElementById("unlockProgressFill");
+const timerCountdownEl = document.getElementById("timerCountdown");
+const roundMessageEl = document.getElementById("roundMessage");
 
 let currentIndex = 0;
 const UNLOCKED_CARDS_COOKIE = "unlockedCards";
 const COOKIE_EXPIRATION_DAYS = 365;
 const MIN_BACK_VARIANT = 1;
 const MAX_BACK_VARIANT = 4;
+const ANSWER_TIME_LIMIT_SECONDS = 30;
 const backImageVariants = flashcards.map(
   () =>
     Math.floor(Math.random() * (MAX_BACK_VARIANT - MIN_BACK_VARIANT + 1)) +
     MIN_BACK_VARIANT,
 );
 const unlockedCards = loadUnlockedCards();
+let timeLeftSeconds = ANSWER_TIME_LIMIT_SECONDS;
+let answerTimerId = null;
+let isCorrectionMode = false;
 
 function buildUnlockKey(cardIndex, variantNumber) {
   const card = flashcards[cardIndex];
@@ -230,10 +236,91 @@ function getRandomBackVariant() {
   return Math.floor(Math.random() * (MAX_BACK_VARIANT - MIN_BACK_VARIANT + 1)) + MIN_BACK_VARIANT;
 }
 
+function renderTimerCountdown() {
+  if (!timerCountdownEl) {
+    return;
+  }
+
+  timerCountdownEl.textContent = `Czas: ${timeLeftSeconds}s`;
+}
+
+function updateNavigationButtonsState() {
+  const shouldDisable = isCorrectionMode;
+  prevBtnEl.disabled = shouldDisable;
+  nextBtnEl.disabled = shouldDisable;
+}
+
+function renderRoundMessage() {
+  if (!roundMessageEl) {
+    return;
+  }
+
+  if (isCorrectionMode) {
+    roundMessageEl.textContent = `Koniec czasu. Poprawna odpowiedz: ${flashcards[currentIndex].english}. Przepisz ja, aby przejsc dalej (bez odblokowania).`;
+    return;
+  }
+
+  roundMessageEl.textContent = "";
+}
+
+function stopAnswerTimer() {
+  if (answerTimerId === null) {
+    return;
+  }
+
+  clearInterval(answerTimerId);
+  answerTimerId = null;
+}
+
+function enterCorrectionMode() {
+  isCorrectionMode = true;
+  stopAnswerTimer();
+  flashcardEl.classList.remove("is-flipped");
+  updateNavigationButtonsState();
+  if (answerInputWrapEl) {
+    answerInputWrapEl.hidden = false;
+  }
+  answerInputEl.value = "";
+  renderColoredInput("");
+  renderRoundMessage();
+  answerInputEl.focus();
+}
+
+function startAnswerTimer() {
+  stopAnswerTimer();
+  answerTimerId = setInterval(() => {
+    if (isCorrectionMode) {
+      stopAnswerTimer();
+      return;
+    }
+
+    if (timeLeftSeconds <= 1) {
+      timeLeftSeconds = 0;
+      renderTimerCountdown();
+      enterCorrectionMode();
+      return;
+    }
+
+    timeLeftSeconds -= 1;
+    renderTimerCountdown();
+  }, 1000);
+}
+
+function resetRoundState() {
+  stopAnswerTimer();
+  timeLeftSeconds = ANSWER_TIME_LIMIT_SECONDS;
+  isCorrectionMode = false;
+  renderTimerCountdown();
+  renderRoundMessage();
+  updateNavigationButtonsState();
+}
+
 function renderCard() {
   const card = flashcards[currentIndex];
   const currentVariant = getRandomBackVariant();
   backImageVariants[currentIndex] = currentVariant;
+  resetRoundState();
+  startAnswerTimer();
 
   polishWordEl.textContent = card.polish;
   englishWordEl.textContent = card.english;
@@ -393,6 +480,7 @@ function showAlbumView() {
     return;
   }
 
+  stopAnswerTimer();
   showAlbumListView();
   renderAlbum();
   gameViewEl.classList.add("is-hidden");
@@ -410,11 +498,27 @@ function showGameView() {
   gameViewEl.classList.remove("is-hidden");
   gameControlsEl.classList.remove("is-hidden");
   albumBtnEl.classList.remove("is-hidden");
+  if (!isCorrectionMode && !flashcardEl.classList.contains("is-flipped") && answerTimerId === null) {
+    startAnswerTimer();
+  }
   answerInputEl.focus();
 }
 
 function tryFlipCard() {
+  if (isCorrectionMode) {
+    if (isAnswerCorrect()) {
+      showNextCard();
+    } else {
+      flashcardEl.classList.remove("is-flipped");
+      if (answerInputWrapEl) {
+        answerInputWrapEl.hidden = false;
+      }
+    }
+    return;
+  }
+
   if (isAnswerCorrect()) {
+    stopAnswerTimer();
     flashcardEl.classList.add("is-flipped");
     unlockCurrentCard();
     if (answerInputWrapEl) {
@@ -431,12 +535,18 @@ function tryFlipCard() {
 }
 
 function showNextCard() {
+  if (isCorrectionMode && !isAnswerCorrect()) {
+    return;
+  }
   currentIndex = (currentIndex + 1) % flashcards.length;
   flashcardEl.classList.remove("is-flipped");
   renderCard();
 }
 
 function showPreviousCard() {
+  if (isCorrectionMode) {
+    return;
+  }
   currentIndex = (currentIndex - 1 + flashcards.length) % flashcards.length;
   flashcardEl.classList.remove("is-flipped");
   renderCard();
@@ -473,6 +583,10 @@ answerInputEl.addEventListener("keydown", (event) => {
 document.addEventListener("keydown", (event) => {
   const isAlbumVisible = albumViewEl && !albumViewEl.classList.contains("is-hidden");
   if (isAlbumVisible) {
+    return;
+  }
+
+  if (isCorrectionMode && (event.key === "ArrowRight" || event.key === "ArrowLeft")) {
     return;
   }
 

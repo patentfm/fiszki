@@ -20,17 +20,21 @@
           <div class="flashcard" id="flashcard" aria-label="Fiszka">
             <article class="flashcard-face flashcard-front">
               <label for="answerInput" class="answer-label">Wpisz po angielsku:</label>
-              <div class="answer-input-wrap">
-                <div id="answerColored" class="answer-colored" aria-hidden="true"></div>
-                <input
-                  id="answerInput"
-                  class="answer-input"
-                  type="text"
-                  autocomplete="off"
-                  autocapitalize="off"
-                  spellcheck="false"
-                />
+              <div class="answer-row">
+                <div class="answer-input-wrap">
+                  <div id="answerColored" class="answer-colored" aria-hidden="true"></div>
+                  <input
+                    id="answerInput"
+                    class="answer-input"
+                    type="text"
+                    autocomplete="off"
+                    autocapitalize="off"
+                    spellcheck="false"
+                  />
+                </div>
+                <span id="timerCountdown" class="timer-countdown" aria-live="polite">Czas: 30s</span>
               </div>
+              <p id="roundMessage" class="round-message" aria-live="polite"></p>
               <img id="frontImage" src="" alt="" class="card-image" />
               <h2 id="polishWord"></h2>
             </article>

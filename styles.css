@@ -86,6 +86,21 @@ body {
   width: 100%;
 }
 
+.answer-row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.timer-countdown {
+  flex: 0 0 auto;
+  min-width: 76px;
+  text-align: right;
+  font-weight: bold;
+  color: #35538a;
+}
+
 .answer-colored {
   position: absolute;
   inset: 0;
@@ -300,11 +315,26 @@ button:hover {
   background: #1b56d0;
 }
 
+button:disabled {
+  background: #a9b7cf;
+  color: #eaf0ff;
+  cursor: not-allowed;
+}
+
 #progress {
   min-width: 80px;
   margin-top: -10px;
   text-align: center;
   font-weight: bold;
+}
+
+.round-message {
+  min-height: 24px;
+  max-width: 520px;
+  margin: 8px auto 0;
+  text-align: center;
+  font-weight: bold;
+  color: #b33939;
 }
 
 @media (max-width: 560px) {
