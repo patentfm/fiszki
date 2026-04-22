@@ -14,22 +14,26 @@
       </header>
 
       <section class="card-section">
-        <div class="flashcard" id="flashcard" aria-label="Fiszka">
-          <article class="flashcard-face flashcard-front">
-            <img id="frontImage" src="" alt="" class="card-image" />
-            <h2 id="polishWord"></h2>
-          </article>
-          <article class="flashcard-face flashcard-back">
-            <img id="backImage" src="" alt="" class="card-image" />
-            <h2 id="englishWord"></h2>
-          </article>
+        <div class="card-layout">
+          <button id="prevBtn" type="button" class="side-btn">Poprzednia</button>
+
+          <div class="flashcard" id="flashcard" aria-label="Fiszka">
+            <article class="flashcard-face flashcard-front">
+              <img id="frontImage" src="" alt="" class="card-image" />
+              <h2 id="polishWord"></h2>
+            </article>
+            <article class="flashcard-face flashcard-back">
+              <img id="backImage" src="" alt="" class="card-image" />
+              <h2 id="englishWord"></h2>
+            </article>
+          </div>
+
+          <button id="nextBtn" type="button" class="side-btn">Nastepna</button>
         </div>
       </section>
 
       <nav class="controls" aria-label="Sterowanie fiszkami">
-        <button id="prevBtn" type="button">Poprzednia</button>
         <span id="progress" aria-live="polite"></span>
-        <button id="nextBtn" type="button">Nastepna</button>
       </nav>
     </main>
 
