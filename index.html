@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="pl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fiszki - Zwierzatka</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="app">
+      <header class="header">
+        <h1>Fiszki: Zwierzatka (PL -> EN)</h1>
+        <p>Kliknij fiszke, aby ja obrocic.</p>
+      </header>
+
+      <section class="card-section">
+        <div class="flashcard" id="flashcard" aria-label="Fiszka">
+          <article class="flashcard-face flashcard-front">
+            <img id="frontImage" src="" alt="" class="card-image" />
+            <h2 id="polishWord"></h2>
+          </article>
+          <article class="flashcard-face flashcard-back">
+            <img id="backImage" src="" alt="" class="card-image" />
+            <h2 id="englishWord"></h2>
+          </article>
+        </div>
+      </section>
+
+      <nav class="controls" aria-label="Sterowanie fiszkami">
+        <button id="prevBtn" type="button">Poprzednia</button>
+        <span id="progress" aria-live="polite"></span>
+        <button id="nextBtn" type="button">Nastepna</button>
+      </nav>
+    </main>
+
+    <script src="./app.js"></script>
+  </body>
+</html>
