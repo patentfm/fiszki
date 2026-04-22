@@ -60,6 +60,7 @@ const nextBtnEl = document.getElementById("nextBtn");
 const answerInputEl = document.getElementById("answerInput");
 const answerColoredEl =
   document.getElementById("answerColored") || document.getElementById("letterFeedback");
+const answerInputWrapEl = document.querySelector(".answer-input-wrap");
 
 let currentIndex = 0;
 
@@ -77,6 +78,9 @@ function renderCard() {
 
   progressEl.textContent = `${currentIndex + 1} / ${flashcards.length}`;
   answerInputEl.value = "";
+  if (answerInputWrapEl) {
+    answerInputWrapEl.hidden = false;
+  }
   if (answerColoredEl) {
     answerColoredEl.innerHTML = '<span class="placeholder">Wpisz odpowiedz...</span>';
   }
@@ -125,8 +129,16 @@ function isAnswerCorrect() {
 function tryFlipCard() {
   if (isAnswerCorrect()) {
     flashcardEl.classList.add("is-flipped");
+    if (answerInputWrapEl) {
+      answerInputWrapEl.hidden = true;
+    }
+    // Remove input focus so Firefox focus ring disappears after correct answer.
+    answerInputEl.blur();
   } else {
     flashcardEl.classList.remove("is-flipped");
+    if (answerInputWrapEl) {
+      answerInputWrapEl.hidden = false;
+    }
   }
 }
 
@@ -145,6 +157,9 @@ function showPreviousCard() {
 flashcardEl.addEventListener("click", () => {
   if (flashcardEl.classList.contains("is-flipped")) {
     flashcardEl.classList.remove("is-flipped");
+    if (answerInputWrapEl) {
+      answerInputWrapEl.hidden = false;
+    }
     answerInputEl.focus();
     return;
   }
