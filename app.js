@@ -89,7 +89,59 @@ const backImageVariants = flashcards.map(
 const unlockedCards = loadUnlockedCards();
 
 function buildUnlockKey(cardIndex, variantNumber) {
-  return `${cardIndex}:${variantNumber}`;
+  const card = flashcards[cardIndex];
+  if (!card) {
+    return "";
+  }
+  const backImagePath = buildBackImagePath(card.backImage, variantNumber);
+  const fileName = backImagePath.split("/").pop() || "";
+  return fileName.replace(/\.[^.]+$/, "");
+}
+
+function getCardBackStem(cardIndex) {
+  const card = flashcards[cardIndex];
+  if (!card) {
+    return "";
+  }
+  const fileName = (card.backImage.split("/").pop() || "").replace(/\.[^.]+$/, "");
+  return fileName.replace(/-back$/i, "");
+}
+
+function parseUnlockEntry(entry) {
+  if (typeof entry !== "string") {
+    return null;
+  }
+
+  const trimmedEntry = entry.trim();
+  if (trimmedEntry.length === 0) {
+    return null;
+  }
+
+  const imageNameMatch = trimmedEntry.match(/^(.*)-back-(\d+)$/i);
+  if (!imageNameMatch) {
+    return null;
+  }
+
+  const stem = imageNameMatch[1];
+  const variantNumber = Number.parseInt(imageNameMatch[2], 10);
+  if (
+    !Number.isInteger(variantNumber) ||
+    variantNumber < MIN_BACK_VARIANT ||
+    variantNumber > MAX_BACK_VARIANT
+  ) {
+    return null;
+  }
+
+  const cardIndex = flashcards.findIndex((_, index) => getCardBackStem(index) === stem);
+  if (cardIndex === -1) {
+    return null;
+  }
+
+  return {
+    cardIndex,
+    variantNumber,
+    unlockKey: trimmedEntry,
+  };
 }
 
 function setCookie(name, value, expirationDays) {
@@ -118,51 +170,56 @@ function loadUnlockedCards() {
     return new Set();
   }
 
+  let parsedEntries = [];
   try {
     const parsed = JSON.parse(unlockedCardsCookie);
-    if (!Array.isArray(parsed)) {
-      return new Set();
+    if (Array.isArray(parsed)) {
+      parsedEntries = parsed;
+    } else if (typeof parsed === "string") {
+      parsedEntries = parsed.split(",");
     }
+  } catch {
+    parsedEntries = unlockedCardsCookie.split(",");
+  }
 
-    const validUnlockKeys = parsed
-      .map((entry) => {
-        // Backward compatibility: old cookie stored numeric card indexes.
-        if (Number.isInteger(entry)) {
-          const fallbackVariant = backImageVariants[entry];
-          return buildUnlockKey(entry, fallbackVariant);
-        }
-        return entry;
-      })
-      .filter((entry) => {
-        if (typeof entry !== "string") {
-          return false;
-        }
+  const validUnlockKeys = parsedEntries
+    .map((entry) => {
+      // Backward compatibility: old cookie stored numeric card indexes.
+      if (Number.isInteger(entry) && entry >= 0 && entry < flashcards.length) {
+        const fallbackVariant = backImageVariants[entry];
+        return buildUnlockKey(entry, fallbackVariant);
+      }
 
+      // Backward compatibility: old cookie stored "index:variant".
+      if (typeof entry === "string" && entry.includes(":")) {
         const [cardIndexRaw, variantRaw] = entry.split(":");
         const cardIndex = Number.parseInt(cardIndexRaw || "", 10);
         const variantNumber = Number.parseInt(variantRaw || "", 10);
-        return (
+        if (
           Number.isInteger(cardIndex) &&
           cardIndex >= 0 &&
           cardIndex < flashcards.length &&
           Number.isInteger(variantNumber) &&
           variantNumber >= MIN_BACK_VARIANT &&
           variantNumber <= MAX_BACK_VARIANT
-        );
-      });
-    return new Set(validUnlockKeys);
-  } catch {
-    return new Set();
-  }
+        ) {
+          return buildUnlockKey(cardIndex, variantNumber);
+        }
+      }
+
+      if (typeof entry === "string") {
+        return entry.trim();
+      }
+      return "";
+    })
+    .filter((entry) => parseUnlockEntry(entry));
+
+  return new Set(validUnlockKeys);
 }
 
 function saveUnlockedCards() {
-  const sortedIndexes = [...unlockedCards].sort();
-  setCookie(
-    UNLOCKED_CARDS_COOKIE,
-    JSON.stringify(sortedIndexes),
-    COOKIE_EXPIRATION_DAYS,
-  );
+  const orderedUnlocks = [...unlockedCards];
+  setCookie(UNLOCKED_CARDS_COOKIE, orderedUnlocks.join(","), COOKIE_EXPIRATION_DAYS);
 }
 
 function buildBackImagePath(basePath, variantNumber) {
@@ -243,20 +300,22 @@ function renderAlbum() {
     return;
   }
 
-  const unlockedIndexes = [...unlockedCards].sort();
+  const unlockedEntries = [...unlockedCards];
   albumGridEl.innerHTML = "";
 
-  if (unlockedIndexes.length === 0) {
+  if (unlockedEntries.length === 0) {
     albumEmptyStateEl.hidden = false;
     return;
   }
 
   albumEmptyStateEl.hidden = true;
-  const albumMarkup = unlockedIndexes
+  const albumMarkup = unlockedEntries
     .map((unlockKey) => {
-      const [cardIndexRaw, variantRaw] = unlockKey.split(":");
-      const cardIndex = Number.parseInt(cardIndexRaw || "", 10);
-      const variantNumber = Number.parseInt(variantRaw || "", 10);
+      const parsedEntry = parseUnlockEntry(unlockKey);
+      if (!parsedEntry) {
+        return "";
+      }
+      const { cardIndex, variantNumber } = parsedEntry;
       const card = flashcards[cardIndex];
       const backImageSrc = buildBackImagePath(card.backImage, variantNumber);
       return `
