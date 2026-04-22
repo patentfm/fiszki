@@ -13,7 +13,7 @@ body {
 .app {
   max-width: 760px;
   margin: 0 auto;
-  padding: 10px 16px 32px;
+  padding: 0px 16px 20px;
 }
 
 .header {
@@ -23,6 +23,7 @@ body {
 
 .header h1 {
   margin-bottom: 8px;
+  margin-top: 5px;
 }
 
 .card-section {
@@ -118,6 +119,7 @@ button:hover {
 
 #progress {
   min-width: 80px;
+  margin-top: -10px;
   text-align: center;
   font-weight: bold;
 }
