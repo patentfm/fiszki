@@ -73,6 +73,8 @@ const albumPreviewViewEl = document.getElementById("albumPreviewView");
 const backToGalleryBtnEl = document.getElementById("backToGalleryBtn");
 const albumPreviewImageEl = document.getElementById("albumPreviewImage");
 const albumPreviewTitleEl = document.getElementById("albumPreviewTitle");
+const unlockProgressTextEl = document.getElementById("unlockProgressText");
+const unlockProgressFillEl = document.getElementById("unlockProgressFill");
 
 let currentIndex = 0;
 const UNLOCKED_CARDS_COOKIE = "unlockedCards";
@@ -85,6 +87,10 @@ const backImageVariants = flashcards.map(
     MIN_BACK_VARIANT,
 );
 const unlockedCards = loadUnlockedCards();
+
+function buildUnlockKey(cardIndex, variantNumber) {
+  return `${cardIndex}:${variantNumber}`;
+}
 
 function setCookie(name, value, expirationDays) {
   const expirationDate = new Date();
@@ -118,17 +124,40 @@ function loadUnlockedCards() {
       return new Set();
     }
 
-    const validIndexes = parsed.filter(
-      (index) => Number.isInteger(index) && index >= 0 && index < flashcards.length,
-    );
-    return new Set(validIndexes);
+    const validUnlockKeys = parsed
+      .map((entry) => {
+        // Backward compatibility: old cookie stored numeric card indexes.
+        if (Number.isInteger(entry)) {
+          const fallbackVariant = backImageVariants[entry];
+          return buildUnlockKey(entry, fallbackVariant);
+        }
+        return entry;
+      })
+      .filter((entry) => {
+        if (typeof entry !== "string") {
+          return false;
+        }
+
+        const [cardIndexRaw, variantRaw] = entry.split(":");
+        const cardIndex = Number.parseInt(cardIndexRaw || "", 10);
+        const variantNumber = Number.parseInt(variantRaw || "", 10);
+        return (
+          Number.isInteger(cardIndex) &&
+          cardIndex >= 0 &&
+          cardIndex < flashcards.length &&
+          Number.isInteger(variantNumber) &&
+          variantNumber >= MIN_BACK_VARIANT &&
+          variantNumber <= MAX_BACK_VARIANT
+        );
+      });
+    return new Set(validUnlockKeys);
   } catch {
     return new Set();
   }
 }
 
 function saveUnlockedCards() {
-  const sortedIndexes = [...unlockedCards].sort((a, b) => a - b);
+  const sortedIndexes = [...unlockedCards].sort();
   setCookie(
     UNLOCKED_CARDS_COOKIE,
     JSON.stringify(sortedIndexes),
@@ -140,14 +169,20 @@ function buildBackImagePath(basePath, variantNumber) {
   return basePath.replace(/-back(\.[^.]+)$/i, `-back-${variantNumber}$1`);
 }
 
+function getRandomBackVariant() {
+  return Math.floor(Math.random() * (MAX_BACK_VARIANT - MIN_BACK_VARIANT + 1)) + MIN_BACK_VARIANT;
+}
+
 function renderCard() {
   const card = flashcards[currentIndex];
+  const currentVariant = getRandomBackVariant();
+  backImageVariants[currentIndex] = currentVariant;
 
   polishWordEl.textContent = card.polish;
   englishWordEl.textContent = card.english;
 
   frontImageEl.src = card.frontImage;
-  backImageEl.src = buildBackImagePath(card.backImage, backImageVariants[currentIndex]);
+  backImageEl.src = buildBackImagePath(card.backImage, currentVariant);
 
   frontImageEl.alt = `Zwierzatko: ${card.polish}`;
   backImageEl.alt = `Zabawny obrazek: ${card.polish} (${card.english})`;
@@ -161,6 +196,7 @@ function renderCard() {
     answerColoredEl.innerHTML = '<span class="placeholder">Wpisz odpowiedz...</span>';
   }
   answerInputEl.focus();
+  renderUnlockProgress();
 }
 
 function escapeHtml(text) {
@@ -207,7 +243,7 @@ function renderAlbum() {
     return;
   }
 
-  const unlockedIndexes = [...unlockedCards].sort((a, b) => a - b);
+  const unlockedIndexes = [...unlockedCards].sort();
   albumGridEl.innerHTML = "";
 
   if (unlockedIndexes.length === 0) {
@@ -217,19 +253,35 @@ function renderAlbum() {
 
   albumEmptyStateEl.hidden = true;
   const albumMarkup = unlockedIndexes
-    .map((index) => {
-      const card = flashcards[index];
-      const backImageSrc = buildBackImagePath(card.backImage, backImageVariants[index]);
+    .map((unlockKey) => {
+      const [cardIndexRaw, variantRaw] = unlockKey.split(":");
+      const cardIndex = Number.parseInt(cardIndexRaw || "", 10);
+      const variantNumber = Number.parseInt(variantRaw || "", 10);
+      const card = flashcards[cardIndex];
+      const backImageSrc = buildBackImagePath(card.backImage, variantNumber);
       return `
-        <button type="button" class="album-card" data-card-index="${index}">
+        <button type="button" class="album-card" data-card-index="${cardIndex}" data-variant-number="${variantNumber}">
           <img src="${backImageSrc}" alt="Odblokowana karta: ${card.polish} (${card.english})" class="album-card-image" />
-          <p class="album-card-title">${card.polish} - ${card.english}</p>
+          <p class="album-card-title">${card.polish} - ${card.english} (wariant ${variantNumber})</p>
         </button>
       `;
     })
     .join("");
 
   albumGridEl.innerHTML = albumMarkup;
+}
+
+function renderUnlockProgress() {
+  if (!unlockProgressTextEl || !unlockProgressFillEl) {
+    return;
+  }
+
+  const unlockedCount = unlockedCards.size;
+  const totalCount = flashcards.length * MAX_BACK_VARIANT;
+  const unlockedPercent = totalCount === 0 ? 0 : (unlockedCount / totalCount) * 100;
+
+  unlockProgressTextEl.textContent = `Odblokowane: ${unlockedCount}/${totalCount}`;
+  unlockProgressFillEl.style.width = `${unlockedPercent}%`;
 }
 
 function showAlbumListView() {
@@ -241,7 +293,7 @@ function showAlbumListView() {
   albumListViewEl.classList.remove("is-hidden");
 }
 
-function showAlbumPreview(cardIndex) {
+function showAlbumPreview(cardIndex, variantNumber) {
   if (
     !albumListViewEl ||
     !albumPreviewViewEl ||
@@ -256,22 +308,25 @@ function showAlbumPreview(cardIndex) {
     return;
   }
 
-  albumPreviewImageEl.src = buildBackImagePath(card.backImage, backImageVariants[cardIndex]);
+  albumPreviewImageEl.src = buildBackImagePath(card.backImage, variantNumber);
   albumPreviewImageEl.alt = `Podglad karty: ${card.polish} (${card.english})`;
-  albumPreviewTitleEl.textContent = `${card.polish} - ${card.english}`;
+  albumPreviewTitleEl.textContent = `${card.polish} - ${card.english} (wariant ${variantNumber})`;
 
   albumListViewEl.classList.add("is-hidden");
   albumPreviewViewEl.classList.remove("is-hidden");
 }
 
 function unlockCurrentCard() {
-  if (unlockedCards.has(currentIndex)) {
+  const currentVariantNumber = backImageVariants[currentIndex];
+  const unlockKey = buildUnlockKey(currentIndex, currentVariantNumber);
+  if (unlockedCards.has(unlockKey)) {
     return;
   }
 
-  unlockedCards.add(currentIndex);
+  unlockedCards.add(unlockKey);
   saveUnlockedCards();
   renderAlbum();
+  renderUnlockProgress();
 }
 
 function showAlbumView() {
@@ -393,11 +448,12 @@ if (albumGridEl) {
     }
 
     const cardIndex = Number.parseInt(cardButton.dataset.cardIndex || "", 10);
-    if (Number.isNaN(cardIndex)) {
+    const variantNumber = Number.parseInt(cardButton.dataset.variantNumber || "", 10);
+    if (Number.isNaN(cardIndex) || Number.isNaN(variantNumber)) {
       return;
     }
 
-    showAlbumPreview(cardIndex);
+    showAlbumPreview(cardIndex, variantNumber);
   });
 }
 
@@ -406,4 +462,5 @@ if (backToGalleryBtnEl) {
 }
 
 renderAlbum();
+renderUnlockProgress();
 renderCard();

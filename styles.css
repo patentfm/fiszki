@@ -166,6 +166,33 @@ h2 {
   gap: 14px;
 }
 
+.unlock-progress {
+  max-width: 520px;
+  margin: 10px auto 0;
+}
+
+.unlock-progress-text {
+  margin: 0 0 6px;
+  text-align: center;
+  font-weight: bold;
+  color: #35538a;
+}
+
+.unlock-progress-track {
+  width: 100%;
+  height: 12px;
+  border-radius: 999px;
+  background: #d8e6ff;
+  overflow: hidden;
+}
+
+.unlock-progress-fill {
+  width: 0;
+  height: 100%;
+  background: linear-gradient(90deg, #2f6ef8 0%, #4cc36f 100%);
+  transition: width 0.25s ease;
+}
+
 .album-view {
   background: #ffffff;
   border: 2px solid #d6e7ff;
