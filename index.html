@@ -7,12 +7,13 @@
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
+    <button id="albumBtn" type="button" class="album-btn">Album</button>
     <main class="app">
       <header class="header">
         <h1>Minecraft Zgadywanki Po Angielsku</h1>
       </header>
 
-      <section class="card-section">
+      <section id="gameView" class="card-section view-section">
         <div class="card-layout">
           <button id="prevBtn" type="button" class="side-btn">Poprzednia</button>
 
@@ -41,11 +42,28 @@
 
           <button id="nextBtn" type="button" class="side-btn">Nastepna</button>
         </div>
+        <nav id="gameControls" class="controls" aria-label="Sterowanie fiszkami">
+          <span id="progress" aria-live="polite"></span>
+        </nav>
       </section>
 
-      <nav class="controls" aria-label="Sterowanie fiszkami">
-        <span id="progress" aria-live="polite"></span>
-      </nav>
+      <section id="albumView" class="album-view view-section is-hidden" aria-live="polite">
+        <div class="album-header">
+          <h2>Album odblokowanych kart</h2>
+          <button id="backToGameBtn" type="button">Powrot do gry</button>
+        </div>
+        <div id="albumListView">
+          <p id="albumEmptyState" class="album-empty">Brak odblokowanych kart.</p>
+          <div id="albumGrid" class="album-grid"></div>
+        </div>
+        <div id="albumPreviewView" class="album-preview is-hidden">
+          <button id="backToGalleryBtn" type="button">Powrot do galerii</button>
+          <article class="album-preview-card">
+            <img id="albumPreviewImage" src="" alt="" class="album-preview-image" />
+            <p id="albumPreviewTitle" class="album-preview-title"></p>
+          </article>
+        </div>
+      </section>
     </main>
 
     <script src="./app.js"></script>
