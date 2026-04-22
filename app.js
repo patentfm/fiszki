@@ -455,9 +455,9 @@ function renderAlbum() {
         <button type="button" class="album-card" data-card-index="${cardIndex}" data-variant-number="${variantNumber}">
           <div class="album-card-image-wrap">
             <img src="${backImageSrc}" alt="Odblokowana karta: ${card.polish} (${card.english})" class="album-card-image" />
-            <span class="rarity-badge">${rarityText}</span>
+           
           </div>
-          <p class="album-card-title">${card.polish} - ${card.english} (${rarityText})</p>
+          <p class="album-card-title">${card.polish} - ${card.english} <br/> (${rarityText})</p>
         </button>
       `;
     })
@@ -607,6 +607,9 @@ function showPreviousCard() {
 
 flashcardEl.addEventListener("click", () => {
   if (flashcardEl.classList.contains("is-flipped")) {
+    if (!isCorrectionMode && isAnswerCorrect()) {
+      return;
+    }
     flashcardEl.classList.remove("is-flipped");
     if (answerInputWrapEl) {
       answerInputWrapEl.hidden = false;
