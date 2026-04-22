@@ -168,6 +168,71 @@ body {
   background: #f2f2f2;
 }
 
+.card-image-wrap,
+.album-card-image-wrap,
+.album-preview-image-wrap {
+  position: relative;
+  width: 100%;
+}
+
+.card-image-wrap {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  max-height: 100%;
+}
+
+.card-image-wrap .card-image {
+  width: 100%;
+  height: 100%;
+  display: block;
+  min-height: 0;
+}
+
+.rarity-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 2;
+  padding: 9px 14px;
+  border-radius: 999px;
+  font-weight: bold;
+  font-size: 0.98rem;
+  line-height: 1;
+  color: #10213f;
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid rgba(53, 83, 138, 0.35);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.12);
+}
+
+.ownership-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 2;
+  border-radius: 999px;
+  font-weight: 800;
+  line-height: 1;
+  border: 1px solid transparent;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.16);
+}
+
+.ownership-badge.is-owned {
+  padding: 8px 12px;
+  font-size: 0.94rem;
+  color: #0d4526;
+  background: rgba(223, 255, 235, 0.96);
+  border-color: rgba(17, 138, 77, 0.4);
+}
+
+.ownership-badge.is-new {
+  padding: 10px 15px;
+  font-size: 1.06rem;
+  color: #4c2a00;
+  background: rgba(255, 237, 214, 0.98);
+  border-color: rgba(225, 135, 0, 0.5);
+}
+
 h2 {
   font-size: 2rem;
   margin: 0 0 6px;
@@ -280,6 +345,11 @@ button.album-card:hover {
   object-fit: contain;
   border-radius: 8px;
   background: #ffffff;
+}
+
+.album-card .rarity-badge {
+  font-size: 0.84rem;
+  padding: 7px 10px;
 }
 
 .album-card-title,

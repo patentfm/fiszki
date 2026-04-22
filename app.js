@@ -73,6 +73,9 @@ const albumPreviewViewEl = document.getElementById("albumPreviewView");
 const backToGalleryBtnEl = document.getElementById("backToGalleryBtn");
 const albumPreviewImageEl = document.getElementById("albumPreviewImage");
 const albumPreviewTitleEl = document.getElementById("albumPreviewTitle");
+const backOwnershipBadgeEl = document.getElementById("backOwnershipBadge");
+const backRarityBadgeEl = document.getElementById("backRarityBadge");
+const albumPreviewRarityBadgeEl = document.getElementById("albumPreviewRarityBadge");
 const unlockProgressTextEl = document.getElementById("unlockProgressText");
 const unlockProgressFillEl = document.getElementById("unlockProgressFill");
 const timerCountdownEl = document.getElementById("timerCountdown");
@@ -83,7 +86,13 @@ const UNLOCKED_CARDS_COOKIE = "unlockedCards";
 const COOKIE_EXPIRATION_DAYS = 365;
 const MIN_BACK_VARIANT = 1;
 const MAX_BACK_VARIANT = 4;
-const ANSWER_TIME_LIMIT_SECONDS = 30;
+const ANSWER_TIME_LIMIT_SECONDS = 59;
+const RARITY_BY_VARIANT = {
+  1: { label: "Popularna", emoji: "❤️" },
+  2: { label: "Niespotykana", emoji: "🥉" },
+  3: { label: "Rzadka", emoji: "🥈" },
+  4: { label: "Bardzo rzadka", emoji: "🥇" },
+};
 const backImageVariants = flashcards.map(
   () =>
     Math.floor(Math.random() * (MAX_BACK_VARIANT - MIN_BACK_VARIANT + 1)) +
@@ -93,6 +102,7 @@ const unlockedCards = loadUnlockedCards();
 let timeLeftSeconds = ANSWER_TIME_LIMIT_SECONDS;
 let answerTimerId = null;
 let isCorrectionMode = false;
+let wasCurrentVariantOwnedAtRoundStart = false;
 
 function buildUnlockKey(cardIndex, variantNumber) {
   const card = flashcards[cardIndex];
@@ -236,6 +246,35 @@ function getRandomBackVariant() {
   return Math.floor(Math.random() * (MAX_BACK_VARIANT - MIN_BACK_VARIANT + 1)) + MIN_BACK_VARIANT;
 }
 
+function getRarityMeta(variantNumber) {
+  return RARITY_BY_VARIANT[variantNumber] || {
+    label: "Nieznana",
+    emoji: "❔",
+  };
+}
+
+function getRarityText(variantNumber) {
+  const rarityMeta = getRarityMeta(variantNumber);
+  return `${rarityMeta.emoji} ${rarityMeta.label}`;
+}
+
+function renderBackOwnershipBadge() {
+  if (!backOwnershipBadgeEl) {
+    return;
+  }
+
+  if (wasCurrentVariantOwnedAtRoundStart) {
+    backOwnershipBadgeEl.textContent = "✅ Masz już tą 😎";
+    backOwnershipBadgeEl.classList.remove("is-new");
+    backOwnershipBadgeEl.classList.add("is-owned");
+    return;
+  }
+
+  backOwnershipBadgeEl.textContent = "🎉 NOWA! 🏆 ";
+  backOwnershipBadgeEl.classList.remove("is-owned");
+  backOwnershipBadgeEl.classList.add("is-new");
+}
+
 function renderTimerCountdown() {
   if (!timerCountdownEl) {
     return;
@@ -318,6 +357,8 @@ function resetRoundState() {
 function renderCard() {
   const card = flashcards[currentIndex];
   const currentVariant = getRandomBackVariant();
+  const unlockKey = buildUnlockKey(currentIndex, currentVariant);
+  wasCurrentVariantOwnedAtRoundStart = unlockedCards.has(unlockKey);
   backImageVariants[currentIndex] = currentVariant;
   resetRoundState();
   startAnswerTimer();
@@ -327,6 +368,10 @@ function renderCard() {
 
   frontImageEl.src = card.frontImage;
   backImageEl.src = buildBackImagePath(card.backImage, currentVariant);
+  if (backRarityBadgeEl) {
+    backRarityBadgeEl.textContent = getRarityText(currentVariant);
+  }
+  renderBackOwnershipBadge();
 
   frontImageEl.alt = `Zwierzatko: ${card.polish}`;
   backImageEl.alt = `Zabawny obrazek: ${card.polish} (${card.english})`;
@@ -405,10 +450,14 @@ function renderAlbum() {
       const { cardIndex, variantNumber } = parsedEntry;
       const card = flashcards[cardIndex];
       const backImageSrc = buildBackImagePath(card.backImage, variantNumber);
+      const rarityText = getRarityText(variantNumber);
       return `
         <button type="button" class="album-card" data-card-index="${cardIndex}" data-variant-number="${variantNumber}">
-          <img src="${backImageSrc}" alt="Odblokowana karta: ${card.polish} (${card.english})" class="album-card-image" />
-          <p class="album-card-title">${card.polish} - ${card.english} (wariant ${variantNumber})</p>
+          <div class="album-card-image-wrap">
+            <img src="${backImageSrc}" alt="Odblokowana karta: ${card.polish} (${card.english})" class="album-card-image" />
+            <span class="rarity-badge">${rarityText}</span>
+          </div>
+          <p class="album-card-title">${card.polish} - ${card.english} (${rarityText})</p>
         </button>
       `;
     })
@@ -456,7 +505,11 @@ function showAlbumPreview(cardIndex, variantNumber) {
 
   albumPreviewImageEl.src = buildBackImagePath(card.backImage, variantNumber);
   albumPreviewImageEl.alt = `Podglad karty: ${card.polish} (${card.english})`;
-  albumPreviewTitleEl.textContent = `${card.polish} - ${card.english} (wariant ${variantNumber})`;
+  const rarityText = getRarityText(variantNumber);
+  albumPreviewTitleEl.textContent = `${card.polish} - ${card.english} (${rarityText})`;
+  if (albumPreviewRarityBadgeEl) {
+    albumPreviewRarityBadgeEl.textContent = rarityText;
+  }
 
   albumListViewEl.classList.add("is-hidden");
   albumPreviewViewEl.classList.remove("is-hidden");

@@ -39,7 +39,11 @@
               <h2 id="polishWord"></h2>
             </article>
             <article class="flashcard-face flashcard-back">
-              <img id="backImage" src="" alt="" class="card-image" />
+              <div class="card-image-wrap">
+                <img id="backImage" src="" alt="" class="card-image" />
+                <span id="backOwnershipBadge" class="ownership-badge"></span>
+                <span id="backRarityBadge" class="rarity-badge"></span>
+              </div>
               <h2 id="englishWord"></h2>
             </article>
           </div>
@@ -69,7 +73,10 @@
         <div id="albumPreviewView" class="album-preview is-hidden">
           <button id="backToGalleryBtn" type="button">Powrot do galerii</button>
           <article class="album-preview-card">
-            <img id="albumPreviewImage" src="" alt="" class="album-preview-image" />
+            <div class="album-preview-image-wrap">
+              <img id="albumPreviewImage" src="" alt="" class="album-preview-image" />
+              <span id="albumPreviewRarityBadge" class="rarity-badge"></span>
+            </div>
             <p id="albumPreviewTitle" class="album-preview-title"></p>
           </article>
         </div>
