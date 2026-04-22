@@ -58,7 +58,8 @@ const progressEl = document.getElementById("progress");
 const prevBtnEl = document.getElementById("prevBtn");
 const nextBtnEl = document.getElementById("nextBtn");
 const answerInputEl = document.getElementById("answerInput");
-const answerColoredEl = document.getElementById("answerColored");
+const answerColoredEl =
+  document.getElementById("answerColored") || document.getElementById("letterFeedback");
 
 let currentIndex = 0;
 
@@ -76,7 +77,9 @@ function renderCard() {
 
   progressEl.textContent = `${currentIndex + 1} / ${flashcards.length}`;
   answerInputEl.value = "";
-  answerColoredEl.innerHTML = '<span class="placeholder">Wpisz odpowiedz...</span>';
+  if (answerColoredEl) {
+    answerColoredEl.innerHTML = '<span class="placeholder">Wpisz odpowiedz...</span>';
+  }
   answerInputEl.focus();
 }
 
@@ -95,7 +98,9 @@ function renderColoredInput(inputValue) {
   let coloredHtml = "";
 
   if (typedWord.length === 0) {
-    answerColoredEl.innerHTML = '<span class="placeholder">Wpisz odpowiedz...</span>';
+    if (answerColoredEl) {
+      answerColoredEl.innerHTML = '<span class="placeholder">Wpisz odpowiedz...</span>';
+    }
     return;
   }
 
@@ -106,7 +111,9 @@ function renderColoredInput(inputValue) {
     coloredHtml += `<span class="${cssClass}">${escapeHtml(typedChar)}</span>`;
   }
 
-  answerColoredEl.innerHTML = coloredHtml;
+  if (answerColoredEl) {
+    answerColoredEl.innerHTML = coloredHtml;
+  }
 }
 
 function isAnswerCorrect() {
