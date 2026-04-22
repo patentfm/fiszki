@@ -301,9 +301,9 @@ h2 {
 }
 
 .album-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
   margin-top: 12px;
 }
 
@@ -318,6 +318,57 @@ button.album-card {
 
 button.album-card:hover {
   background: #edf4ff;
+}
+
+.album-animal-group {
+  border: 1px solid #dbe8ff;
+  border-radius: 12px;
+  background: #f9fbff;
+  padding: 12px;
+}
+
+.album-animal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.album-animal-header h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.album-animal-progress {
+  font-size: 0.9rem;
+  font-weight: bold;
+  color: #35538a;
+}
+
+.album-animal-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.album-card-locked {
+  border: 1px dashed #c7d8fb;
+  border-radius: 12px;
+  padding: 10px;
+  background: #eef4ff;
+  color: #607091;
+}
+
+.album-card-locked-image {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 8px;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
 }
 
 .album-preview {
@@ -357,6 +408,7 @@ button.album-card:hover {
   margin: 8px 0 0;
   text-align: center;
   font-weight: bold;
+  font-size: 0.9rem;
 }
 
 .is-hidden {
@@ -444,4 +496,10 @@ button:disabled {
   .album-header h2 {
     text-align: center;
   }
+
+  .album-animal-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
 }

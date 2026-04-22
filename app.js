@@ -432,33 +432,64 @@ function renderAlbum() {
     return;
   }
 
-  const unlockedEntries = [...unlockedCards];
   albumGridEl.innerHTML = "";
+  const sortedCards = [...flashcards]
+    .map((card, cardIndex) => ({ card, cardIndex }))
+    .sort((left, right) => left.card.polish.localeCompare(right.card.polish, "pl"));
 
-  if (unlockedEntries.length === 0) {
+  if (sortedCards.length === 0) {
     albumEmptyStateEl.hidden = false;
     return;
   }
 
   albumEmptyStateEl.hidden = true;
-  const albumMarkup = unlockedEntries
-    .map((unlockKey) => {
-      const parsedEntry = parseUnlockEntry(unlockKey);
-      if (!parsedEntry) {
-        return "";
+  const albumMarkup = sortedCards
+    .map(({ card, cardIndex }) => {
+      const variantMarkup = [];
+      let unlockedCountForAnimal = 0;
+
+      for (
+        let variantNumber = MIN_BACK_VARIANT;
+        variantNumber <= MAX_BACK_VARIANT;
+        variantNumber += 1
+      ) {
+        const unlockKey = buildUnlockKey(cardIndex, variantNumber);
+        const isUnlocked = unlockedCards.has(unlockKey);
+        if (isUnlocked) {
+          unlockedCountForAnimal += 1;
+        }
+
+        const rarityText = getRarityText(variantNumber);
+        if (isUnlocked) {
+          const backImageSrc = buildBackImagePath(card.backImage, variantNumber);
+          variantMarkup.push(`
+            <button type="button" class="album-card" data-card-index="${cardIndex}" data-variant-number="${variantNumber}">
+              <div class="album-card-image-wrap">
+                <img src="${backImageSrc}" alt="Odblokowana karta: ${card.polish} (${card.english})" class="album-card-image" />
+              </div>
+              <p class="album-card-title">${card.polish} (${rarityText})</p>
+            </button>
+          `);
+        } else {
+          variantMarkup.push(`
+            <div class="album-card album-card-locked" aria-hidden="true">
+              <div class="album-card-image-wrap album-card-locked-image">🔒</div>
+              <p class="album-card-title">Nieodblokowana (${rarityText})</p>
+            </div>
+          `);
+        }
       }
-      const { cardIndex, variantNumber } = parsedEntry;
-      const card = flashcards[cardIndex];
-      const backImageSrc = buildBackImagePath(card.backImage, variantNumber);
-      const rarityText = getRarityText(variantNumber);
+
       return `
-        <button type="button" class="album-card" data-card-index="${cardIndex}" data-variant-number="${variantNumber}">
-          <div class="album-card-image-wrap">
-            <img src="${backImageSrc}" alt="Odblokowana karta: ${card.polish} (${card.english})" class="album-card-image" />
-           
+        <section class="album-animal-group">
+          <header class="album-animal-header">
+            <h3>${card.polish} - ${card.english}</h3>
+            <span class="album-animal-progress">Odblokowane: ${unlockedCountForAnimal}/${MAX_BACK_VARIANT}</span>
+          </header>
+          <div class="album-animal-grid">
+            ${variantMarkup.join("")}
           </div>
-          <p class="album-card-title">${card.polish} - ${card.english} <br/> (${rarityText})</p>
-        </button>
+        </section>
       `;
     })
     .join("");
