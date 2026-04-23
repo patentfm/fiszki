@@ -33,6 +33,64 @@ body {
   z-index: 50;
 }
 
+.back-menu-btn {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 50;
+}
+
+.menu-view {
+  background: #ffffff;
+  border: 2px solid #d6e7ff;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(32, 79, 160, 0.15);
+  padding: 20px;
+  margin-top: 8px;
+}
+
+.menu-title {
+  margin: 0 0 16px;
+  text-align: center;
+  font-size: 1.6rem;
+}
+
+.set-tiles {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.set-tile {
+  min-height: 120px;
+  border-radius: 14px;
+  border: 2px solid #d6e7ff;
+  background: linear-gradient(180deg, #f8fbff 0%, #eaf2ff 100%);
+  color: #1f3f72;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.set-tile:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 18px rgba(32, 79, 160, 0.2);
+  border-color: #8db2ff;
+}
+
+.set-tile-title {
+  font-size: 1.1rem;
+  font-weight: bold;
+}
+
+.set-tile-subtitle {
+  font-size: 0.9rem;
+  color: #486697;
+}
+
 .card-section {
   perspective: 1200px;
 }
@@ -502,6 +560,17 @@ button:disabled {
     right: 8px;
     padding: 8px 12px;
     font-size: 0.9rem;
+  }
+
+  .back-menu-btn {
+    top: 8px;
+    left: 8px;
+    padding: 8px 12px;
+    font-size: 0.9rem;
+  }
+
+  .set-tiles {
+    grid-template-columns: 1fr;
   }
 
   .album-header {

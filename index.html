@@ -8,12 +8,18 @@
   </head>
   <body>
     <button id="albumBtn" type="button" class="album-btn">Album</button>
+    <button id="backToMenuBtn" type="button" class="back-menu-btn is-hidden">Powrot do menu</button>
     <main class="app">
       <header class="header">
         <h1>Minecraft Zgadywanki Po Angielsku</h1>
       </header>
 
-      <section id="gameView" class="card-section view-section">
+      <section id="menuView" class="menu-view view-section" aria-label="Wybierz zestaw fiszek">
+        <h2 class="menu-title">Wybierz zestaw fiszek</h2>
+        <div id="setTiles" class="set-tiles"></div>
+      </section>
+
+      <section id="gameView" class="card-section view-section is-hidden">
         <div class="card-layout">
           <button id="prevBtn" type="button" class="side-btn">Poprzednia</button>
 
@@ -63,7 +69,7 @@
 
       <section id="albumView" class="album-view view-section is-hidden" aria-live="polite">
         <div class="album-header">
-          <h2>Album odblokowanych kart</h2>
+          <h2 id="albumTitle">Album odblokowanych kart</h2>
           <button id="backToGameBtn" type="button">Powrot do gry</button>
         </div>
         <div id="albumListView">
